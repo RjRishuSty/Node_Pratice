@@ -78,15 +78,16 @@ const FormModal = () => {
     return true;
   }, [formData]);
 
-   //* Handle  Submit form data logic
+  //* Handle  Submit form data logic
 
-   const handleSubmit = useCallback((e)=>{
-    e.preventDefault();
-    if(!handleValidate())return;
-     enqueueSnackbar("Employee profile added successfully!", {
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!handleValidate()) return;
+      enqueueSnackbar("Employee profile added successfully!", {
         variant: "success",
       });
-       //* Reset form
+      //* Reset form
       setFormData({
         fullname: "",
         email: "",
@@ -94,11 +95,20 @@ const FormModal = () => {
         address: "",
       });
       handleClose();
-   },[formData,handleClose,handleValidate])
+    },
+    [formData, handleClose, handleValidate]
+  );
 
   console.log("Formdata", formData);
   return (
-    <Dialog component='form' onSubmit={handleSubmit} open={openModal} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog
+      component="form"
+      onSubmit={handleSubmit}
+      open={openModal}
+      onClose={handleClose}
+      maxWidth="md"
+      fullWidth
+    >
       <Box
         sx={{
           display: "flex",
@@ -135,7 +145,7 @@ const FormModal = () => {
           Cancel
         </Button>
         <Button
-        type="submit"
+          type="submit"
           variant="contained"
           size="large"
           sx={{ bgcolor: "#00b300", fontWeight: 600, letterSpacing: 1 }}
