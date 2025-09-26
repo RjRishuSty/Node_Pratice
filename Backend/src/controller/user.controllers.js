@@ -1,9 +1,10 @@
-const userModel = require("../model/user.model");
+
+const { createUser, getUsers, userUpdate, deleteUserById } = require("../services/user.services");
 
 //! Get all user handler .....................
 const handleGetAlluser = async (req, res) => {
   try {
-    const users = await userModel.find();
+    const users = await getUsers();
     if (users.length === 0) {
       res.status(404).json({ message: "User not found", data: [] });
     }
@@ -16,46 +17,13 @@ const handleGetAlluser = async (req, res) => {
 
 //! Create new user handler ................
 const handleCreateUser = async (req, res) => {
-  const { fullname, email, phone, password } = req.body;
-  if (!fullname)
-    return res.status(400).json({ message: "Fullname is required." });
-  if (!email) return res.status(400).json({ message: "Email is required." });
-  if (!phone)
-    return res.status(400).json({ message: "Phone Numbare is required." });
-  if (phone.length !== 10)
-    return res
-      .status(400)
-      .json({ message: "Phone Numbare must be 10 Characters." });
-  if (!password)
-    return res.status(400).json({ message: "Password is required." });
-  if (password.length < 6)
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 6 characters long" });
+   const { fullname, email, phone, password } = req.body;
   try {
-    const existEmail = await userModel.findOne({ email });
-    const existPhone = await userModel.findOne({ phone });
-    if (existEmail)
-      return res
-        .status(409)
-        .json({ message: "Email is  already exits. please use other email" });
-    if (existPhone)
-      return res.status(409).json({
-        message:
-          "Phone Number is  already exits. please use other phone number",
-      });
-    const newUser = await userModel.create({
-      fullname,
-      email,
-      phone,
-      password,
-    });
-    res
-      .status(201)
-      .json({ message: "User created successfully", data: newUser });
+    const createdUser = await createUser(fullname, email, phone, password);
+    res.status(201).json({ message: "User created successfully", data: createdUser });
   } catch (error) {
     console.log("Error", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(400).json({ message: error.message }); 
   }
 };
 
@@ -68,11 +36,7 @@ const handleUpdateUser = async (req, res) => {
       .status(400)
       .json({ message: "Invalid request. User ID is required" });
   try {
-    const updatedUser = await userModel.findByIdAndUpdate(
-      id,
-      { $set: updated },
-      { new: true, runValidators: true }
-    );
+    const updatedUser = await userUpdate(id,updated);
     if (!updatedUser) {
       return res.status(404).json({
         message: "User not found",
@@ -93,7 +57,7 @@ const handleDeleteUser = async (req, res) => {
       .status(400)
       .json({ message: "Invalid request. User ID is requireds" });
   try {
-    const deletedUser = await userModel.findByIdAndDelete(id);
+    const deletedUser = await deleteUserById(id);
     if (!deletedUser)
       return res.status(404).json({ message: "User not found" });
     res
